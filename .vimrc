@@ -1,72 +1,151 @@
-set fenc=utf-8
-set nobackup
-set noswapfile
-set autoread
-set hidden
-set showcmd
-set autowrite
-set mouse=a
-set title
-set ambiwidth=double
-set nrformats=octal
-set backspace=indent,eol,start
-set clipboard=unnamed,autoselect
-set whichwrap=b,s,h,l,<,>,[,],~
+" ====================================== dein.vim settings ======================================
+if &compatible
+  set nocompatible
+endif
+" Add the dein installation directory into runtimepath
+set runtimepath+=~/.cache/dein/repos/github.com/Shougo/dein.vim
 
-" key mapping --------------------
-nnoremap j gj
-nnoremap k gk
-nnoremap Y y$
-nnoremap sp split
-nnoremap vs vsplit
+if dein#load_state('~/.cache/dein')
+  call dein#begin('~/.cache/dein')
 
-" visual -------------------------
-set number
-set cursorline
-set cursorcolumn
-set virtualedit=onemore
-set smartindent
-set visualbell
-set showmatch
-set matchtime=1
+  call dein#add('~/.cache/dein/repos/github.com/Shougo/dein.vim')
+  call dein#add('Shougo/deoplete.nvim')
+  " call dein#add('vim-airline/vim-airline')
+  call dein#add('itchyny/lightline.vim')
+  if !has('nvim')
+    call dein#add('roxma/nvim-yarp')
+    call dein#add('roxma/vim-hug-neovim-rpc')
+  endif
+
+  call dein#end()
+  call dein#save_state()
+endif
+
+" plugin installation check
+if dein#check_install()
+ call dein#install()
+endif
+
+" vim-airline --------------------------------------------------------------
+"let g:airline_mode_map = {
+"	\ 'n'  : 'Normal',
+"	\ 'i'  : 'Insert',
+"	\ 'R'  : 'Replace',
+"	\ 'c'  : 'Command',
+"	\ 'v'  : 'Visual',
+"	\ 'V'  : 'V-Line',
+"	\ '' : 'V-Block',
+"	\ }
+"
+
+let g:lightline = {
+    \ 'colorscheme': 'wombat',
+    \ 'active': {
+        \ 'left': [ ['mode', 'paste'], ['readonly', 'branchName', 'filepath', 'modified'] ]
+        \ },
+    \ 'component_function':{
+        \ 'filepath': 'FilePath',
+        \ 'branchName': 'BranchName'
+        \ },
+    \ 'separator': { 'left': '>', 'right': '<' },
+    \ }
+function! BranchName()
+    if exists('*fugitive#head')
+        let branch = FugitiveHead()
+        return branch !=# '' ? '⭠ '.branch : ''
+    endif
+    return ''
+endfunction
+function! FilePath()
+    if winwidth(0) > 90
+        return expand("%:s")
+    else
+        return expand("%:t")
+    endif
+endfunction
+" # show statusbar
 set laststatus=2
-set wildmode=list:longest
-set display=lastline
-set pumheight=10
-syntax on
+" # hide --INSERT--
+set noshowmode
 
-" tab ----------------------------
-set list
-set listchars=tab:^\ ,trail:~
-set expandtab
-set tabstop=2
-set shiftwidth=2
 
-" search -------------------------
+" ====================================== general settings ======================================
+" encoding
+set encoding=utf-8
+scriptencoding utf-8
+set fileencodings=utf-8,iso-2022-jp,euc-jp,sjis
+
+" syntax
+syntax enable
+
+" color scheme
+colorscheme darkblue
+
+" file type plugin
+filetype plugin indent on
+
+" cursorline
+set cursorline
+
+" line number
+set number
+
+" search
+set hlsearch
 set ignorecase
 set smartcase
 set incsearch
 set wrapscan
-set hlsearch
-nmap <Esc><Esc> :nohlsearch<CR><Esc>
+nnoremap <Esc><Esc> :nohlsearch<CR>
 
+" tab
+set tabstop=4
+set expandtab
 
-" HTML/XML閉じタグ自動保管
-augroup MyXML
+" indent
+set smartindent
+set shiftwidth=4
+
+" clipboard
+set clipboard+=unnamed
+
+" tabpage
+set showtabline=2
+
+" status line
+set laststatus=2
+
+" rectangle selection
+set virtualedit=block
+
+" complement
+set wildmenu
+
+" auto reload
+set autoread
+
+" turn
+nnoremap j gj
+nnoremap k gk
+
+" cursor move
+set whichwrap=b,s,h,l,<,>,[,]
+
+" backup
+set noswapfile
+set nobackup
+
+" undo
+if has('persistent_undo')
+    let undo_path = expand('~/.vim/undo')
+    exe 'set undodir=' . undo_path
+    set undofile
+endif
+
+" auto reload .vimrc
+augroup source-vimrc
   autocmd!
-  autocm Filetype xml inoremap <buffer> </ </<C-x><C-o>
-  autocm Filetype html inoremap <buffer> </ </<C-x><C-o>
+  autocmd BufWritePost *vimrc source $MYVIMRC | set foldmethod=marker
+  autocmd BufWritePost *gvimrc if has('gui_running') source $MYGVIMRC
 augroup END
 
-" 編集個所のカーソル位置を記憶
-if has("autocmd")
-  augrou@ redhat
-    "In next files, always limit the width of text to 78 characters
-    autocmd BufRead *.txt set tw=78
-    " When editing a file, always jump to the last cursor position
-    autocmd BufReadPost *
-    \ if line("'\"") > 0 && line ("'\"") <= line("$") |
-    \   exe "normal! g'\"" |
-    \ endif
-  augroup END
-endif
