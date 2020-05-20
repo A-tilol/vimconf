@@ -107,7 +107,7 @@ set smartindent
 set shiftwidth=4
 
 " clipboard
-set clipboard+=unnamed
+set clipboard+=unnamed,autoselect
 
 " tabpage
 set showtabline=2
@@ -136,6 +136,7 @@ set noswapfile
 set nobackup
 
 " undo
+" you must create a ~/.vim/undo directory to enable
 if has('persistent_undo')
     let undo_path = expand('~/.vim/undo')
     exe 'set undodir=' . undo_path
